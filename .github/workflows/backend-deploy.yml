@@ -3,7 +3,7 @@ name: Build & Deploy Spring Boot Backend to Azure App Service
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - "backend/**"     # backend 디렉토리 변경 시만 실행
 

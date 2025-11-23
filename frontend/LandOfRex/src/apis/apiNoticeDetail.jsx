@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { baseUrl } from "../config/url.js";
 
 // 공지사항 세부 정보 요청 함수
 export const fetchNoticeDetail = async (id) => {
-  const apiUrl = `https://k11e102.p.ssafy.io/api/v1/notices/${id}`;
+  const apiUrl = `${baseUrl}/api/v1/notices/${id}`;
   try {
     const response = await axios.get(apiUrl);
     return response.data; // 필요한 데이터 필드만 반환하도록 선택 가능

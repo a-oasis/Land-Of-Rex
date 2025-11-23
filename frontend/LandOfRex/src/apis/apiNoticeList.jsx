@@ -1,6 +1,6 @@
 import axios from 'axios';
-
-const apiUrl = 'https://k11e102.p.ssafy.io/api/v1/notices?page=0&size=10';
+import { baseUrl } from "../config/url.js";
+const apiUrl = `${baseUrl}/api/v1/notices?page=0&size=10`;
 
 // 중요도에 따른 우선순위 설정
 const importanceOrder = {

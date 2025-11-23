@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { baseUrl } from "../config/url.js";
 
 const apiAdminLogin = async (username, password) => {
     try {
-        const response = await axios.post('https://k11e102.p.ssafy.io/api/v1/auth/login', {
+        const response = await axios.post(`${baseUrl}/api/v1/auth/login`, {
             username,
             password
         });

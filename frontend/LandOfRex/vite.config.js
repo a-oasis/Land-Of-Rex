@@ -10,7 +10,8 @@ export default defineConfig({
     proxy: {
       '/api': {
         // target: 'http://localhost:8080',
-        target: 'https://k11e102.p.ssafy.io',
+        // target: 'https://k11e102.p.ssafy.io',
+        target: 'landofrex-backend-b2hyfseuhcb9fuh3.koreasouth-01.azurewebsites.net',
         changeOrigin: true,
       }
     }

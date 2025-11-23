@@ -1,6 +1,6 @@
 import axios from 'axios';
-
-const apiUrl = 'https://k11e102.p.ssafy.io/api/v1/rankings/2';
+import { baseUrl } from "../config/url.js";
+const apiUrl = `${baseUrl}/api/v1/rankings/2`;
 
 // 랭킹 목록 요청 함수
 export const fetchRankingList2 = async () => {

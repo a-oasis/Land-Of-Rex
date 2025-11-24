@@ -1,0 +1,8 @@
+{
+  "routes": [
+    {
+      "route": "/api/*",
+      "rewrite": "landofrex-backend-b2hyfseuhcb9fuh3.koreasouth-01.azurewebsites.net/api/*"
+    }
+  ]
+}

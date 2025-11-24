@@ -15,68 +15,42 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     permissions:
-      id-token: write
-      contents: read
-
+       id-token: write
+       contents: read
     steps:
-      # 1) 소스 체크아웃
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
 
-      # 2) Node.js 설치
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: 20
 
-      # 3) React dependencies 설치
       - name: Install dependencies
         run: |
           cd frontend/LandOfRex
           npm install
 
-      # 4) React 직접 빌드 (dist 생성됨)
-      - name: Build React App
+      - name: Build React app
         run: |
           cd frontend/LandOfRex
           npm run build
 
-      # 5) build 후 dist 안에 staticwebapp.config.json 복사
-      - name: Copy staticwebapp.config.json into dist
+      - name: Copy config to dist
         run: |
           cp frontend/LandOfRex/public/staticwebapp.config.json frontend/LandOfRex/dist/
 
-      # 6) GitHub ID Token 유지 (네 기존 구조 그대로 유지)
-      - name: Install OIDC Client
-        run: npm install @actions/core@1.6.0 @actions/http-client
+      - name: List dist files (debug)
+        run: |
+          ls -R frontend/LandOfRex/dist
 
-      - name: Get Id Token
-        uses: actions/github-script@v6
-        id: idtoken
-        with:
-          script: |
-            const coredemo = require('@actions/core')
-            return await coredemo.getIDToken()
-          result-encoding: string
-
-      # 7) Build & Deploy to Azure Static Web Apps
       - name: Deploy to Azure Static Web Apps
-        id: deploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PURPLE_GROUND_01B32B300 }}
-          action: upload
-          app_location: "./frontend/LandOfRex"
-          output_location: "dist"  # React 직접 빌드한 dist
-          api_location: ""
-          github_id_token: ${{ steps.idtoken.outputs.result }}
-
-  # PR close 시 SWA 프리뷰 삭제
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    steps:
-      - name: Close Pull Request
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          action: close
+          action: "upload"
+          app_location: "frontend/LandOfRex"
+          output_location: "dist"

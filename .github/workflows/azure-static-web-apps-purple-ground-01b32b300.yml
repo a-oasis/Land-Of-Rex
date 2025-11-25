@@ -1,71 +1,73 @@
 name: Azure Static Web Apps CI/CD (Student Account Safe)
 
 on:
-push:
-branches:
-- master
-pull_request:
-types: [opened, synchronize, reopened, closed]
-branches:
-- master
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - master
 
 jobs:
-build_and_deploy_job:
-if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-runs-on: ubuntu-latest
-name: Build and Deploy Job
-permissions:
-id-token: write
-contents: read
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    permissions:
+      id-token: write
+      contents: read
 
-steps:
-  # 1) Checkout code
-  - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  # 2) Setup Node.js
-  - name: Setup Node.js
-    uses: actions/setup-node@v3
-    with:
-      node-version: '20'
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
 
-  # 3) Install dependencies
-  - name: Install dependencies
-    run: |
-      cd frontend/LandOfRex
-      npm install
+      - name: Install dependencies
+        run: |
+          cd frontend/LandOfRex
+          npm install
 
-  # 4) Build React app with Vite
-  - name: Build React App
-    run: |
-      cd frontend/LandOfRex
-      npm run build
+      - name: Build React App
+        run: |
+          cd frontend/LandOfRex
+          npm run build
 
-  # 5) Copy staticwebapp.config.json into dist
-  - name: Copy staticwebapp.config.json
-    run: |
-      cp frontend/LandOfRex/public/staticwebapp.config.json frontend/LandOfRex/dist/
+      - name: Copy staticwebapp.config.json
+        run: |
+          cp frontend/LandOfRex/public/staticwebapp.config.json frontend/LandOfRex/dist/
 
-  # 6) Install OIDC client (GitHub ID Token)
-  - name: Install OIDC Client
-    run: npm install @actions/core@1.6.0 @actions/http-client
+      - name: Install OIDC Client
+        run: npm install @actions/core@1.6.0 @actions/http-client
 
-  # 7) Get GitHub ID Token
-  - name: Get GitHub ID Token
-    uses: actions/github-script@v6
-    id: idtoken
-    with:
-      script: |
-        const core = require('@actions/core')
-        return await core.getIDToken()
-      result-encoding: string
+      - name: Get GitHub ID Token
+        uses: actions/github-script@v6
+        id: idtoken
+        with:
+          script: |
+            const core = require('@actions/core')
+            return await core.getIDToken()
+          result-encoding: string
 
-  # 8) Deploy to Azure Static Web Apps
-  - name: Deploy to Azure Static Web Apps
-    uses: Azure/static-web-apps-deploy@v1
-    with:
-      azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PURPLE_GROUND_01B32B300 }}
-      action: upload
-      app_location: "frontend/LandOfRex/dist"   # dist 폴더 직접 지정
-      output_location: ""                        # dist 내부 그대로 업로드
-      api_location: ""                           # 학생 계정 제한으로 API 사용 안 함
-      github_id_token: ${{ steps.idtoken.outputs.result }}
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PURPLE_GROUND_01B32B300 }}
+          action: upload
+          app_location: "frontend/LandOfRex/dist"
+          output_location: ""
+          api_location: ""
+          github_id_token: ${{ steps.idtoken.outputs.result }}
+
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          action: close

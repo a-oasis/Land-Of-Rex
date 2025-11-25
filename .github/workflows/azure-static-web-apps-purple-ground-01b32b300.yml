@@ -48,8 +48,8 @@ jobs:
         id: idtoken
         with:
           script: |
-            const core = require('@actions/core')
-            return await core.getIDToken()
+            const ghCore = require('@actions/core')
+            return await ghCore.getIDToken()
           result-encoding: string
 
       - name: Deploy to Azure Static Web Apps
@@ -71,3 +71,4 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           action: close
+

@@ -1,54 +1,55 @@
 name: Azure Static Web Apps CI/CD (Student Account Safe)
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - master
+push:
+branches:
+- master
+pull_request:
+types: [opened, synchronize, reopened, closed]
+branches:
+- master
 
 jobs:
-  build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    name: Build and Deploy Job
+build_and_deploy_job:
+runs-on: ubuntu-latest
+permissions:
+contents: read
+id-token: write
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+```
+steps:
+  - name: Checkout code
+    uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "20"
+  - name: Setup Node.js
+    uses: actions/setup-node@v3
+    with:
+      node-version: '20'
 
-      - name: Install dependencies
-        run: |
-          cd frontend/LandOfRex
-          npm install
+  - name: Install dependencies
+    run: |
+      cd frontend/LandOfRex
+      npm install
 
-      - name: Build React App
-        run: |
-          cd frontend/LandOfRex
-          npm run build
+  - name: Build React App with Vite
+    run: |
+      cd frontend/LandOfRex
+      npm run build
 
-      - name: Copy staticwebapp.config.json
-        run: |
-          cp frontend/LandOfRex/public/staticwebapp.config.json frontend/LandOfRex/dist/
+  - name: Copy staticwebapp.config.json into build
+    run: |
+      cp frontend/LandOfRex/public/staticwebapp.config.json frontend/LandOfRex/build/
 
-      - name: List dist content
-        run: |
-          ls -R frontend/LandOfRex/dist
+  - name: List build content for debug
+    run: |
+      ls -R frontend/LandOfRex/build
 
-      - name: Deploy to Azure Static Web Apps
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PURPLE_GROUND_01B32B300 }}
-          action: upload
-          app_location: "frontend/LandOfRex"
-          output_location: "dist"
-          api_location: ""
+  - name: Deploy to Azure Static Web Apps via OIDC
+    uses: Azure/static-web-apps-deploy@v1
+    with:
+      app_location: "frontend/LandOfRex/build"
+      output_location: ""
+      api_location: ""
+      github_id_token: ${{ github.token }}
+      action: "upload"
+```

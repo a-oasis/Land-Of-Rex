@@ -17,12 +17,10 @@ jobs:
     permissions:
        id-token: write
        contents: read
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          submodules: true
-          lfs: false
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -34,15 +32,12 @@ jobs:
           cd frontend/LandOfRex
           npm install
 
-      - name: Build React app
+      - name: Build Vite app
         run: |
           cd frontend/LandOfRex
           npm run build
 
-      - name: Copy config to dist
-        run: |
-          cp frontend/LandOfRex/public/staticwebapp.config.json frontend/LandOfRex/dist/
-
+      # dist 파일 디버깅 출력
       - name: List dist files (debug)
         run: |
           ls -R frontend/LandOfRex/dist

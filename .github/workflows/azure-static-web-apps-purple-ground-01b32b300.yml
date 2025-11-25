@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD
+name: Azure Static Web Apps CI/CD (Student Account Safe)
 
 on:
 push:
@@ -19,7 +19,7 @@ id-token: write
 contents: read
 
 steps:
-  # 1) Checkout repository
+  # 1) Checkout code
   - uses: actions/checkout@v3
 
   # 2) Setup Node.js
@@ -34,7 +34,7 @@ steps:
       cd frontend/LandOfRex
       npm install
 
-  # 4) Build React app (Vite)
+  # 4) Build React app with Vite
   - name: Build React App
     run: |
       cd frontend/LandOfRex
@@ -45,7 +45,7 @@ steps:
     run: |
       cp frontend/LandOfRex/public/staticwebapp.config.json frontend/LandOfRex/dist/
 
-  # 6) Install OIDC client for token (required)
+  # 6) Install OIDC client (GitHub ID Token)
   - name: Install OIDC Client
     run: npm install @actions/core@1.6.0 @actions/http-client
 
@@ -67,18 +67,5 @@ steps:
       action: upload
       app_location: "frontend/LandOfRex/dist"   # dist 폴더 직접 지정
       output_location: ""                        # dist 내부 그대로 업로드
-      api_location: ""
+      api_location: ""                           # 학생 계정 제한으로 API 사용 안 함
       github_id_token: ${{ steps.idtoken.outputs.result }}
-
-# Close SWA preview on PR close
-
-close_pull_request_job:
-if: github.event_name == 'pull_request' && github.event.action == 'closed'
-runs-on: ubuntu-latest
-name: Close Pull Request Job
-steps:
-- name: Close Pull Request
-uses: Azure/static-web-apps-deploy@v1
-with:
-action: close
-

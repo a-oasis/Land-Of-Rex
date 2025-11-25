@@ -49,7 +49,8 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PURPLE_GROUND_01B32B300 }}
           action: upload
-          app_location: "frontend/LandOfRex"
-          output_location: "build"
+          app_location: "frontend/LandOfRex/build"
+          output_location: ""
           api_location: ""
+
 

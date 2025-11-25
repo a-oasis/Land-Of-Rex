@@ -4,9 +4,9 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   base: '/',
-  build: {
-    outDir: "build",
-  },
+  // build: {
+  //   outDir: "build",
+  // },
   plugins: [react()],
   server: {
     // host: 'local.p.ssafy.io',

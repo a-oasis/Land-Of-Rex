@@ -1,0 +1,36 @@
+name: React Deploy to VM
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - run: npm ci
+      - run: npm run build
+
+      - uses: appleboy/scp-action@v0.1.6
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: 22
+          source: "build/*"
+          target: "/var/www/react/"
+
+      - uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: sudo systemctl reload nginx

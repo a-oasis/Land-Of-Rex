@@ -33,20 +33,23 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
+          # build 디렉토리 자체를 삭제하고 다시 만듭니다.
           script: |
-            rm -rf /home/azureuser/landofrex-react/build/*
-            mkdir -p /home/azureuser/landofrex-react/build
+            rm -rf /home/azureuser/landofrex-react/build 
+            mkdir -p /home/azureuser/landofrex-react/build 
 
-      - name: Copy new build to VM
+      - name: Copy new build to VM 🚀
         uses: appleboy/scp-action@v0.1.6
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
-          source: "frontend/LandOfRex/build"
-          target: "/home/azureuser/landofrex-react/"
-
+          # 1. source에 /*를 추가하여 build 폴더의 내용물 전체를 지정
+          source: "frontend/LandOfRex/build/*" 
+          # 2. target은 내용물이 복사되어 들어갈 build 폴더까지 지정
+          target: "/home/azureuser/landofrex-react/build/"
+          
       - name: Reload Nginx
         uses: appleboy/ssh-action@v0.1.6
         with:

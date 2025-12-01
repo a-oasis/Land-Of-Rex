@@ -44,8 +44,8 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
-          source: "frontend/LandOfRex/build/*"
-          target: "/home/azureuser/landofrex-react/build/"
+          source: "frontend/LandOfRex/build"
+          target: "/home/azureuser/landofrex-react/"
 
       - name: Reload Nginx
         uses: appleboy/ssh-action@v0.1.6

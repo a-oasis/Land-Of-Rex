@@ -35,12 +35,13 @@ jobs:
         path: backend/landOfRex 
     
     - name: Ensure gradlew is executable
-      run: chmod +x ./backend/landOfRex/gradlew
-        
+      working-directory: ./backend/landOfRex
+      run: chmod +x gradlew
+      
     - name: Set up Java
       uses: actions/setup-java@v3
       with:
-        java-version: '17' # Spring 프로젝트에 맞는 Java 버전
+        java-version: '21' # Spring 프로젝트에 맞는 Java 버전
         distribution: 'temurin'
         
     - name: Build with Gradle

@@ -33,6 +33,10 @@ jobs:
       uses: actions/checkout@v3
       with:
         path: backend/landOfRex 
+
+    - name: Debug List Checked Out Files
+      run: |
+        ls -l backend/landOfRex
     
     - name: Ensure gradlew is executable
       working-directory: ./backend/landOfRex

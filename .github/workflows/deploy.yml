@@ -1,0 +1,102 @@
+name: CI/CD Pipeline to EC2 (EC2_PRIVATE_KEY 사용)
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # GitHub Actions 기본 빌드 환경 사용
+
+    steps:
+    # 1. SSH 키 설정
+    - name: Set up SSH Private Key using EC2_PRIVATE_KEY
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        # Secret 이름을 EC2_PRIVATE_KEY로 변경
+        ssh-private-key: ${{ secrets.EC2_PRIVATE_KEY }}
+
+    # 2. EC2 접속 정보 변수 설정
+    - name: Set EC2 connection variables
+      id: set_vars
+      run: |
+        # TODO: 실제 EC2 Public IP 또는 DNS로 변경
+        echo "EC2_HOST=ec2-3-112-70-125.ap-northeast-1.compute.amazonaws.com" >> $GITHUB_ENV
+        # TODO: EC2 사용자 이름 (ubuntu, ec2-user, centos 등)에 맞게 변경
+        echo "EC2_USER=ubuntu" >> $GITHUB_ENV
+
+    # =======================================================
+    # A. Spring Backend 배포 (Build, Transfer, Deploy)
+    # =======================================================
+    - name: Checkout Spring Backend Code
+      uses: actions/checkout@v3
+      with:
+        path: spring-app 
+        
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17' # Spring 프로젝트에 맞는 Java 버전
+        distribution: 'temurin'
+        
+    - name: Build with Gradle
+      working-directory: ./spring-app
+      run: ./gradlew build -x test
+
+    - name: Transfer Spring JAR to EC2
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ env.EC2_HOST }}
+        username: ${{ env.EC2_USER }}
+        # 키 참조 Secret 이름이 EC2_PRIVATE_KEY로 변경됨
+        key: ${{ secrets.EC2_PRIVATE_KEY }} 
+        source: "spring-app/build/libs/*.jar"
+        target: "/home/ubuntu/spring-deploy/" 
+
+    - name: Deploy and Restart Spring Service
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ env.EC2_HOST }}
+        username: ${{ env.EC2_USER }}
+        # 키 참조 Secret 이름이 EC2_PRIVATE_KEY로 변경됨
+        key: ${{ secrets.EC2_PRIVATE_KEY }} 
+        script: |
+          # 기존 서비스 중지 (systemd 서비스로 등록했다고 가정)
+          sudo systemctl stop spring-app || true
+          # 새 JAR 파일로 교체
+          sudo cp /home/ubuntu/spring-deploy/*.jar /home/ubuntu/spring-app/app.jar
+          # 새 서비스 시작
+          sudo systemctl start spring-app
+          sudo systemctl status spring-app
+          
+    # =======================================================
+    # B. React Frontend 배포 (Build, Transfer)
+    # =======================================================
+    - name: Checkout React Frontend Code
+      uses: actions/checkout@v3
+      with:
+        path: react-app 
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies and Build React
+      working-directory: ./react-app
+      run: |
+        npm install
+        npm run build 
+
+    - name: Transfer React Build Files to EC2 (NGINX Static Folder)
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ env.EC2_HOST }}
+        username: ${{ env.EC2_USER }}
+        # 키 참조 Secret 이름이 EC2_PRIVATE_KEY로 변경됨
+        key: ${{ secrets.EC2_PRIVATE_KEY }} 
+        source: "react-app/build/*"
+        # TODO: NGINX 설정에서 지정한 실제 경로로 변경
+        target: "/var/www/html/react-app/" 
+        overwrite: true

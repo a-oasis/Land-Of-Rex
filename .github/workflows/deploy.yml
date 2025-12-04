@@ -32,7 +32,10 @@ jobs:
     - name: Checkout Spring Backend Code
       uses: actions/checkout@v3
       with:
-        path: spring-app 
+        path: backend/landOfRex 
+    
+    - name: Ensure gradlew is executable
+      run: chmod +x ./backend/landOfRex/gradlew
         
     - name: Set up Java
       uses: actions/setup-java@v3
@@ -41,7 +44,7 @@ jobs:
         distribution: 'temurin'
         
     - name: Build with Gradle
-      working-directory: ./spring-app
+      working-directory: ./backend/landOfRex
       run: ./gradlew build -x test
 
     - name: Transfer Spring JAR to EC2
@@ -51,7 +54,7 @@ jobs:
         username: ${{ env.EC2_USER }}
         # 키 참조 Secret 이름이 EC2_PRIVATE_KEY로 변경됨
         key: ${{ secrets.EC2_PRIVATE_KEY }} 
-        source: "spring-app/build/libs/*.jar"
+        source: "backend/landOfRex/build/libs/*.jar"
         target: "/home/ubuntu/spring-deploy/" 
 
     - name: Deploy and Restart Spring Service

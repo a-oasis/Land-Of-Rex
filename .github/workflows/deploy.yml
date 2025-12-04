@@ -78,11 +78,23 @@ jobs:
         username: ${{ env.EC2_USER }}
         key: ${{ secrets.EC2_PRIVATE_KEY }} 
         script: |
+          # 1. 기존 서비스 중지
           sudo systemctl stop spring-app || true
-          LATEST_JAR=$(ls -t /home/ubuntu/spring-deploy/*.jar | head -1)
-          sudo cp $LATEST_JAR /home/ubuntu/spring-app/app.jar
-          sudo systemctl start spring-app
-          sudo systemctl status spring-app
+          
+          # 2. 전송된 JAR 파일이 있는지 확인하고 복사
+          JAR_FILE=$(find /home/ubuntu/spring-deploy/ -name "*.jar" -print -quit)
+          
+          if [ -f "$JAR_FILE" ]; then
+            echo "Found JAR: $JAR_FILE. Copying to app.jar..."
+            sudo cp "$JAR_FILE" /home/ubuntu/spring-app/app.jar
+            
+            # 3. 서비스 시작
+            sudo systemctl start spring-app
+            sudo systemctl status spring-app
+          else
+            echo "ERROR: No JAR file found in /home/ubuntu/spring-deploy/. Deployment aborted."
+            exit 1
+          fi
           
     # =======================================================
     # B. React Frontend 배포 (Build, Transfer)

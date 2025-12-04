@@ -79,7 +79,8 @@ jobs:
         key: ${{ secrets.EC2_PRIVATE_KEY }} 
         script: |
           sudo systemctl stop spring-app || true
-          sudo cp /home/ubuntu/spring-deploy/*.jar /home/ubuntu/spring-app/app.jar
+          LATEST_JAR=$(ls -t /home/ubuntu/spring-deploy/*.jar | head -1)
+          sudo cp $LATEST_JAR /home/ubuntu/spring-app/app.jar
           sudo systemctl start spring-app
           sudo systemctl status spring-app
           

@@ -3,7 +3,7 @@ name: CI/CD Pipeline to EC2 (EC2_PRIVATE_KEY 사용)
 on:
   push:
     branches:
-      - master
+      - master  # master 브랜치에 푸시될 때마다 실행
 
 jobs:
   deploy:
@@ -21,9 +21,9 @@ jobs:
     - name: Set EC2 connection variables
       id: set_vars
       run: |
-        # TODO: 실제 EC2 Public IP 또는 DNS로 변경
+        # 실제 EC2 Public IP 또는 DNS
         echo "EC2_HOST=ec2-3-112-70-125.ap-northeast-1.compute.amazonaws.com" >> $GITHUB_ENV
-        # TODO: EC2 사용자 이름 (ubuntu, ec2-user, centos 등)에 맞게 변경
+        # EC2 사용자 이름
         echo "EC2_USER=ubuntu" >> $GITHUB_ENV
 
     # =======================================================
@@ -32,55 +32,54 @@ jobs:
     - name: Checkout Spring Backend Code
       uses: actions/checkout@v3
       with:
-        path: backend/landOfRex 
+        # 코드는 이 경로에 다운로드되며, 중첩 구조가 생깁니다.
+        path: backend/landOfRex
 
-    # - name: Debug List Checked Out Files
+    # ⚠️ Debug 스텝은 이제 필요하지 않으므로 주석 처리하거나 제거하는 것이 좋습니다.
+    # - name: Debug Find gradlew in the entire workspace
     #   run: |
-    #     ls -l backend/landOfRex
-    - name: Debug Find gradlew in the entire workspace
-      run: |
-        # 'find' 명령어를 사용하여 Runner의 작업 공간(/home/runner/work/) 전체에서 gradlew 파일을 찾습니다.
-        find . -name "gradlew"
-    
+    #     find . -name "gradlew"
+
+    # 3. gradlew 실행 권한 부여
     - name: Ensure gradlew is executable
-      # working-directory 설정: 명령이 실행될 위치를 변경합니다.
-      working-directory: ./backend/landOfRex
-      # 이제 'gradlew'는 현재 디렉터리 내에서 찾아집니다.
+      # ⚠️ 수정: 중첩된 경로를 working-directory로 지정
+      working-directory: ./backend/landOfRex/backend/landOfRex 
       run: chmod +x gradlew
       
+    # 4. Java 환경 설정
     - name: Set up Java
       uses: actions/setup-java@v3
       with:
         java-version: '21' # Spring 프로젝트에 맞는 Java 버전
         distribution: 'temurin'
         
+    # 5. Gradle 빌드
     - name: Build with Gradle
-      working-directory: ./backend/landOfRex
+      # ⚠️ 수정: 중첩된 경로를 working-directory로 지정
+      working-directory: ./backend/landOfRex/backend/landOfRex
       run: ./gradlew build -x test
 
+    # 6. JAR 파일 EC2로 전송
     - name: Transfer Spring JAR to EC2
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ env.EC2_HOST }}
         username: ${{ env.EC2_USER }}
-        # 키 참조 Secret 이름이 EC2_PRIVATE_KEY로 변경됨
         key: ${{ secrets.EC2_PRIVATE_KEY }} 
-        source: "backend/landOfRex/build/libs/*.jar"
+        # ⚠️ 수정: 중첩된 경로를 source 경로에 포함
+        source: "backend/landOfRex/backend/landOfRex/build/libs/*.jar"
         target: "/home/ubuntu/spring-deploy/" 
 
+    # 7. EC2에서 배포 및 재시작
     - name: Deploy and Restart Spring Service
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ env.EC2_HOST }}
         username: ${{ env.EC2_USER }}
-        # 키 참조 Secret 이름이 EC2_PRIVATE_KEY로 변경됨
         key: ${{ secrets.EC2_PRIVATE_KEY }} 
         script: |
-          # 기존 서비스 중지 (systemd 서비스로 등록했다고 가정)
           sudo systemctl stop spring-app || true
-          # 새 JAR 파일로 교체
           sudo cp /home/ubuntu/spring-deploy/*.jar /home/ubuntu/spring-app/app.jar
-          # 새 서비스 시작
           sudo systemctl start spring-app
           sudo systemctl status spring-app
           
@@ -108,9 +107,8 @@ jobs:
       with:
         host: ${{ env.EC2_HOST }}
         username: ${{ env.EC2_USER }}
-        # 키 참조 Secret 이름이 EC2_PRIVATE_KEY로 변경됨
         key: ${{ secrets.EC2_PRIVATE_KEY }} 
         source: "react-app/build/*"
-        # TODO: NGINX 설정에서 지정한 실제 경로로 변경
+        # NGINX 설정에서 지정한 경로와 일치해야 합니다.
         target: "/var/www/html/react-app/" 
         overwrite: true

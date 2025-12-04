@@ -37,6 +37,10 @@ jobs:
     # - name: Debug List Checked Out Files
     #   run: |
     #     ls -l backend/landOfRex
+    - name: Debug Find gradlew in the entire workspace
+      run: |
+        # 'find' 명령어를 사용하여 Runner의 작업 공간(/home/runner/work/) 전체에서 gradlew 파일을 찾습니다.
+        find . -name "gradlew"
     
     - name: Ensure gradlew is executable
       # working-directory 설정: 명령이 실행될 위치를 변경합니다.

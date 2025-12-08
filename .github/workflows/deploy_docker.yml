@@ -52,7 +52,16 @@ jobs:
           context: ./backend/landOfRex
           push: true
           tags: ${{ steps.image.outputs.TAG }} 
+          file: ./backend/landOfRex/Dockerfile
           
+      - name: 📁 Transfer Docker Compose file to server (SCP)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}        # 🔑 EC2_HOST 사용
+          username: ${{ secrets.EC2_USERNAME }} # 🔑 EC2_USERNAME 사용
+          key: ${{ secrets.EC2_PRIVATE_KEY }}   # 🔑 EC2_PRIVATE_KEY 사용
+          source: "./backend/docker-compose.yml" 
+          target: "/backend"
           
       # --- 2. CD 단계: 배포 서버에 접속 및 실행 ---
 

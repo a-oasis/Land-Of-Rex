@@ -26,6 +26,7 @@ jobs:
           distribution: 'temurin'
           
       - name: 📦 Build Spring Boot Application
+        working-directory: ./backend/landOfRex
         run: ./gradlew clean build -x test # JAR 파일 빌드
         
       - name: 🐳 Login to Docker Hub
@@ -48,6 +49,7 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.image.outputs.TAG }} 
+          working-directory: ./backend/landOfRex
           file: ./Dockerfile 
           
       # --- 2. CD 단계: 배포 서버에 접속 및 실행 ---
@@ -63,7 +65,7 @@ jobs:
           # ⚠️ 배포 서버에서 docker-compose.yml 파일이 위치한 경로로 변경하세요.
           script: |
             # 1. 서버에서 작업 디렉토리로 이동
-            cd /path/to/your/app/directory 
+            cd /backend
             
             # 2. Docker Hub에서 최신 이미지 풀(Pull)
             sudo docker pull ${{ steps.image.outputs.TAG }}

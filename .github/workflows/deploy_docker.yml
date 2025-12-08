@@ -24,6 +24,9 @@ jobs:
         with:
           java-version: '21' # ⚠️ Java 21 사용
           distribution: 'temurin'
+
+      - name: 🔒 Grant execute permission to gradlew
+        run: chmod +x ./backend/landOfRex/gradlew
           
       - name: 📦 Build Spring Boot Application
         working-directory: ./backend/landOfRex

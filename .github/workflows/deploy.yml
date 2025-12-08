@@ -92,6 +92,7 @@ jobs:
             sudo cp "$JAR_FILE" /home/ubuntu/spring-app/app.jar
 
             sudo chown ubuntu:ubuntu /home/ubuntu/spring-app/app.jar
+            sudo chmod +x /home/ubuntu/spring-app/app.jar
             
             # 4. 서비스 시작
             sudo systemctl start spring-app

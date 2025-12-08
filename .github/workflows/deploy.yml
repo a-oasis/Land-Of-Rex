@@ -78,6 +78,20 @@ jobs:
         username: ${{ env.EC2_USER }}
         key: ${{ secrets.EC2_PRIVATE_KEY }} 
         script: |
+          echo "[Unit]" | sudo tee /etc/systemd/system/spring-app.service
+          echo "Description=Spring Boot Application" | sudo tee -a /etc/systemd/system/spring-app.service
+          echo "After=syslog.target" | sudo tee -a /etc/systemd/system/spring-app.service
+          echo "" | sudo tee -a /etc/systemd/system/spring-app.service
+          echo "[Service]" | sudo tee -a /etc/systemd/system/spring-app.service
+          echo "User=ubuntu" | sudo tee -a /etc/systemd/system/spring-app.service # ⚠️ 핵심 수정 사항
+          echo "Group=ubuntu" | sudo tee -a /etc/systemd/system/spring-app.service # ⚠️ 핵심 수정 사항
+          echo "ExecStart=/usr/bin/java -jar /home/ubuntu/spring-app/app.jar" | sudo tee -a /etc/systemd/system/spring-app.service
+          echo "SuccessExitStatus=143" | sudo tee -a /etc/systemd/system/spring-app.service
+          echo "Restart=always" | sudo tee -a /etc/systemd/system/spring-app.service # (선택 사항: 재시작 설정)
+          echo "" | sudo tee -a /etc/systemd/system/spring-app.service
+          echo "[Install]" | sudo tee -a /etc/systemd/system/spring-app.service
+          echo "WantedBy=multi-user.target" | sudo tee -a /etc/systemd/system/spring-app.service
+          
           # 1. ⚠️ 변경된 Systemd 설정을 즉시 반영
           sudo systemctl daemon-reload 
           

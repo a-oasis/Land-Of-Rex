@@ -10,7 +10,7 @@ COPY backend/landOfRex/gradle ./gradle
 COPY backend/landOfRex/build.gradle ./
 
 # Copy the source files
-COPY backend/landOfRex/src ./src
+# COPY backend/landOfRex/src ./src
 
 # Make Gradle wrapper executable
 RUN chmod +x ./gradlew

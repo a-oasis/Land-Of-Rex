@@ -49,10 +49,9 @@ jobs:
       - name: 🏗️ Build and Push Docker Image to Docker Hub
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./backend/landOfRex
           push: true
           tags: ${{ steps.image.outputs.TAG }} 
-          working-directory: ./backend/landOfRex
           file: ./Dockerfile 
           
       # --- 2. CD 단계: 배포 서버에 접속 및 실행 ---

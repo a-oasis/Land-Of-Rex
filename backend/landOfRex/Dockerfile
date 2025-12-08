@@ -33,7 +33,7 @@ WORKDIR /app
 
 # 3. GitHub Actions에서 전송한 최종 JAR 파일만 복사
 # ⚠️ GitHub Actions의 SCP 단계에서 이 이름으로 전송되도록 설정해야 합니다.
-COPY app.jar /app/app.jar 
+COPY build/libs/*.jar /app/app.jar
 
 # 4. 포트 노출 (선택 사항)
 EXPOSE 8080 

@@ -52,7 +52,7 @@ jobs:
           context: ./backend/landOfRex
           push: true
           tags: ${{ steps.image.outputs.TAG }} 
-          file: ./Dockerfile 
+          
           
       # --- 2. CD 단계: 배포 서버에 접속 및 실행 ---
 

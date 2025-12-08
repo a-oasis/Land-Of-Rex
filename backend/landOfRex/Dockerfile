@@ -26,7 +26,7 @@
 
 # upper no docker hub version
 
-FROM openjdk:21-slim-buster 
+FROM openjdk:21-ea-21-slim-buster
 
 # 2. 작업 디렉토리 설정
 WORKDIR /app
